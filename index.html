@@ -263,7 +263,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
 <script>
 // ── Estado global ─────────────────────────────────────────
 // ── IMPORTANTE: pega aquí la URL de tu Web App de Apps Script ────────────────
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxa2DaWFfgWhldnlkbRiWKVyG63H3-LdBV-PtncUxwn6s0vFcCnnCBhSjX7bSvgICxY/exec";
+var SCRIPT_URL = "TU_URL_DE_APPS_SCRIPT_AQUI";
 // Ejemplo: "https://script.google.com/macros/s/AKfycb.../exec"
 
 var vals = { nuevo:"", meli:"", nombre:"", empresa:"", ldap:"", instructor:"", curso:"", firmaSigned:false, fotoData:"", curpData:"" };
@@ -512,10 +512,13 @@ function submitForm(){
   btn.disabled = true;
   btn.innerHTML = '<div class="loader"></div> Guardando...';
 
+  // Apps Script requiere no-cors con FormData para evitar preflight CORS
+  var formData = new FormData();
+  formData.append("data", JSON.stringify(payload));
+
   fetch(SCRIPT_URL, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(payload)
+    body: formData
   })
   .then(function(r){ return r.json(); })
   .then(function(res){
