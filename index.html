@@ -263,7 +263,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
 <script>
 // ── Estado global ─────────────────────────────────────────
 // ── IMPORTANTE: pega aquí la URL de tu Web App de Apps Script ────────────────
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxa2DaWFfgWhldnlkbRiWKVyG63H3-LdBV-PtncUxwn6s0vFcCnnCBhSjX7bSvgICxY/exec";
+var SCRIPT_URL = "TU_URL_DE_APPS_SCRIPT_AQUI";
 // Ejemplo: "https://script.google.com/macros/s/AKfycb.../exec"
 
 var vals = { nuevo:"", meli:"", nombre:"", empresa:"", ldap:"", instructor:"", curso:"", firmaSigned:false, fotoData:"", curpData:"" };
@@ -555,7 +555,7 @@ function resetForm(){
   document.getElementById("card-brigada").classList.add("hidden");
   detenerCamaras();
   vals.fotoData=""; vals.curpData=""; var ci=document.getElementById("inp-curp"); if(ci) ci.value="";
-  retakePhoto(); retakeCurp();
+  retakePhoto();
   var btn=document.getElementById("btn-submit");
   btn.disabled=false;
   btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Registrar asistencia';
