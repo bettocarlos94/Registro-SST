@@ -282,7 +282,9 @@ document.getElementById("folio-disp").textContent = folio;
 
 // ── Cargar catálogos desde el backend ─────────────────────
 document.getElementById("init-overlay").style.display = "flex";
-fetch(SCRIPT_URL + "?action=getCatalogos")
+var formCat = new FormData();
+formCat.append("action", "getCatalogos");
+fetch(SCRIPT_URL, { method: "POST", body: formCat })
   .then(function(r){ return r.json(); })
   .then(function(data){
     cursos    = data.cursos;
@@ -391,7 +393,10 @@ function searchLDAP(q){
     var res = ldapCache.filter(function(r){ return r.nombre.toLowerCase().includes(ql) || String(r.ldap).toLowerCase().includes(ql); });
     renderLDAPDd(res, q);
     // También pedir al backend
-    fetch(SCRIPT_URL + "?action=buscarLDAP&q=" + encodeURIComponent(q))
+    var formLdap = new FormData();
+    formLdap.append("action", "buscarLDAP");
+    formLdap.append("q", q);
+    fetch(SCRIPT_URL, { method: "POST", body: formLdap })
       .then(function(r){ return r.json(); })
       .then(function(serverRes){
         serverRes.forEach(function(r){
