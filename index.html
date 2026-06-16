@@ -286,8 +286,13 @@ document.getElementById("init-overlay").style.display = "flex";
 var formCat = new FormData();
 formCat.append("action", "getCatalogos");
 fetch(SCRIPT_URL, { method: "POST", body: formCat })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
+  .then(function(r){ return r.text(); })
+  .then(function(txt){
+    var data;
+    try { data = JSON.parse(txt); }
+    catch(e){ throw new Error("Respuesta inválida del servidor: " + txt.substring(0,200)); }
+    if(data.ok === false) throw new Error(data.error || "Error desconocido");
+    if(!data.cursos || !data.analistas) throw new Error("Catálogos vacíos. Verifica permisos del Sheet.");
     cursos    = data.cursos;
     analistas = data.analistas;
     var sel = document.getElementById("sel-instructor");
