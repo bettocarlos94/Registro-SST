@@ -83,6 +83,29 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
 .foto-retake{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit}
 .loading-overlay .sp{width:36px;height:36px;border:3px solid #ddd;border-top-color:#185FA5;border-radius:50%;animation:spin .8s linear infinite}
 .loading-overlay p{margin-top:12px;font-size:14px;color:#555}
+.qr-launch{display:flex;align-items:center;justify-content:space-between;gap:14px;border-left:4px solid #185FA5}
+.qr-launch strong{display:block;font-size:15px;margin-bottom:4px}
+.qr-launch p,.qr-note{font-size:13px;color:#666;line-height:1.45}
+.qr-action-btn{border:0;border-radius:9px;background:#185FA5;color:#fff;padding:11px 14px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.qr-action-btn:hover{background:#0C447C}
+.qr-back{border:0;background:none;color:#185FA5;font:600 14px inherit;padding:4px 0 14px;cursor:pointer}
+.qr-badge{display:inline-block;margin:2px 5px 12px 0;padding:5px 9px;border-radius:20px;background:#EAF3DE;color:#3B6D11;font-size:12px;font-weight:600}
+.qr-scan-row{display:flex;gap:8px}
+.qr-scan-row input{flex:1;min-width:0}
+.qr-scan-row button,.qr-secondary-btn{border:1.5px solid #D5DCE5;border-radius:9px;background:#F8FAFC;color:#334155;padding:10px 12px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.qr-camera-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.qr-video-wrap{margin-top:12px;background:#111;border-radius:10px;overflow:hidden}
+#qr-video{display:block;width:100%;max-height:360px;object-fit:cover}
+.qr-list{display:grid;gap:7px}
+.qr-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid #E5E7EB;border-radius:9px;background:#FAFAFA;font-size:14px}
+.qr-item.not-found{border-color:#F3C5C5;background:#FFF7F7}
+.qr-item small{display:block;color:#B42318;font-size:11px;margin-top:3px}
+.qr-remove{border:0;background:none;color:#B42318;font-size:18px;cursor:pointer;padding:4px 8px}
+.qr-status{min-height:20px;margin:10px 0 0;font-size:13px;line-height:1.4}
+.qr-status.success{color:#3B6D11}.qr-status.warning{color:#9A6700}.qr-status.error{color:#B42318}
+.qr-save-btn{width:100%;margin-top:12px;padding:14px;border:0;border-radius:10px;background:#185FA5;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer}
+.qr-save-btn:disabled{background:#AAA;cursor:not-allowed}
+@media(max-width:520px){.qr-launch{align-items:flex-start;flex-direction:column}.qr-action-btn{width:100%}.qr-scan-row{flex-direction:column}.qr-scan-row button{width:100%}}
 </style>
 </head>
 <body>
@@ -105,6 +128,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
   </div>
 
   <div class="wrap">
+    <div class="card qr-launch">
+      <div><strong>¿Vas a registrar a varias personas?</strong><p>Escanea los LDAP y guarda las asistencias juntas.</p></div>
+      <button class="qr-action-btn" type="button" onclick="abrirModoQR()">Captura rápida por QR</button>
+    </div>
+
     <div class="card">
       <div class="card-title">Perfil del participante</div>
 
@@ -260,6 +288,53 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
   </div>
 </div>
 
+<div id="qr-form" class="hidden">
+  <div class="top-bar">
+    <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div><div class="ttl">Captura rápida de asistencia</div><div class="sub">Safety, Security &amp; Transformation</div></div>
+    <div class="folio-pill">QR · LDAP_USER</div>
+  </div>
+  <div class="wrap">
+    <button class="qr-back" type="button" onclick="volverARegistroIndividual()">← Volver al registro individual</button>
+    <div class="card">
+      <div class="card-title">Datos de la sesión</div>
+      <div class="qr-badge">MeLi: Sí</div><div class="qr-badge">Nuevo ingreso: No</div>
+      <p class="qr-note">Esta captura es para personal con usuario LDAP. Los nombres se buscarán en “Personal RRHH” únicamente al pulsar Guardar.</p>
+      <p class="qr-note" style="margin-top:6px">El texto del LDAP escaneado se guardará en la columna Firma; no se solicita firma manuscrita.</p>
+      <div class="field" style="margin-top:14px">
+        <label for="qr-curso">Curso <span class="req">*</span></label>
+        <input type="text" id="qr-curso" list="qr-cursos" placeholder="Busca y selecciona un curso" autocomplete="off" />
+        <datalist id="qr-cursos"></datalist>
+      </div>
+      <div class="field">
+        <label for="qr-instructor">Instructor <span class="req">*</span></label>
+        <select id="qr-instructor"><option value="">— Selecciona un instructor —</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Escanear LDAP_USER</div>
+      <p class="qr-note" style="margin-bottom:12px">Con lector USB, escanea en el campo y el lector enviará Enter. En celular, puedes usar la cámara.</p>
+      <form id="qr-scan-form" class="qr-scan-row" onsubmit="event.preventDefault(); agregarQRDesdeCampo();">
+        <input type="text" id="qr-scan-input" placeholder="Escanea o escribe el LDAP_USER" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        <button type="submit">Agregar LDAP</button>
+      </form>
+      <div class="qr-camera-actions">
+        <button class="qr-secondary-btn" id="qr-start-camera" type="button" onclick="iniciarCamaraQR()">Usar cámara</button>
+        <button class="qr-secondary-btn hidden" id="qr-stop-camera" type="button" onclick="detenerCamaraQR()">Detener cámara</button>
+      </div>
+      <div class="qr-video-wrap hidden" id="qr-camera-wrap"><video id="qr-video" autoplay playsinline muted></video></div>
+    </div>
+    <div class="card">
+      <div class="card-title">LDAP pendientes (<span id="qr-count">0</span>)</div>
+      <div class="qr-list" id="qr-list"><p class="qr-note">Todavía no hay códigos escaneados.</p></div>
+      <div class="qr-status" id="qr-status" aria-live="polite"></div>
+      <button class="qr-save-btn" id="qr-save-btn" type="button" onclick="guardarLoteQR()" disabled>Guardar asistencias</button>
+      <button class="qr-secondary-btn" style="width:100%;margin-top:8px" type="button" onclick="limpiarListaQR()">Limpiar lista</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
 <script>
 // ── Estado global ─────────────────────────────────────────
 // ── IMPORTANTE: pega aquí la URL de tu Web App de Apps Script ────────────────
@@ -272,6 +347,8 @@ var fotoStream=null;
 var cursos = [], analistas = [], ldapCache = [];
 var sigDrawing = false, sigHasMark = false;
 var folio = "";
+var qrAsistentes = [], qrReader = null, qrCameraControls = null, qrGuardando = false;
+var qrUltimoCamara = "", qrUltimoCamaraMs = 0;
 
 // ── Folio ─────────────────────────────────────────────────
 function genFolio(){
@@ -299,6 +376,7 @@ fetch(SCRIPT_URL + "?action=getCatalogos", { method: "GET", redirect: "follow" }
       o.value = a.nombre; o.textContent = a.nombre;
       sel.appendChild(o);
     });
+    cargarCatalogosQR();
     document.getElementById("init-overlay").style.display = "none";
   })
   .catch(function(err){
@@ -568,6 +646,222 @@ function resetForm(){
   document.getElementById("app-success").classList.add("hidden");
   document.getElementById("app-form").classList.remove("hidden");
   window.scrollTo({top:0});
+}
+
+// ── Captura rápida por QR ─────────────────────────────────
+function cargarCatalogosQR(){
+  var instructor = document.getElementById("qr-instructor");
+  var listaCursos = document.getElementById("qr-cursos");
+  if(!instructor || !listaCursos) return;
+  instructor.innerHTML = '<option value="">— Selecciona un instructor —</option>';
+  analistas.forEach(function(a){
+    var opcion = document.createElement("option");
+    opcion.value = a.nombre; opcion.textContent = a.nombre;
+    instructor.appendChild(opcion);
+  });
+  listaCursos.innerHTML = "";
+  cursos.forEach(function(c){
+    var opcion = document.createElement("option");
+    opcion.value = c.nombre;
+    listaCursos.appendChild(opcion);
+  });
+}
+
+function abrirModoQR(){
+  if(!cursos.length || !analistas.length){
+    alert("Los catálogos todavía se están cargando. Intenta de nuevo en unos segundos.");
+    return;
+  }
+  document.getElementById("app-form").classList.add("hidden");
+  document.getElementById("app-success").classList.add("hidden");
+  document.getElementById("qr-form").classList.remove("hidden");
+  renderListaQR();
+  setTimeout(function(){ document.getElementById("qr-scan-input").focus(); }, 50);
+}
+
+function volverARegistroIndividual(){
+  detenerCamaraQR();
+  document.getElementById("qr-form").classList.add("hidden");
+  document.getElementById("app-form").classList.remove("hidden");
+}
+
+function agregarQRDesdeCampo(){
+  var campo = document.getElementById("qr-scan-input");
+  var valor = campo.value;
+  campo.value = "";
+  agregarValorQR(valor);
+  campo.focus();
+}
+
+function agregarValorQR(valor){
+  var ldap = String(valor || "").trim();
+  if(!ldap) return;
+  var existe = qrAsistentes.some(function(item){ return item.ldap.toUpperCase() === ldap.toUpperCase(); });
+  if(existe){
+    mostrarEstadoQR("Ese LDAP ya está en la lista: " + ldap, "warning");
+    return;
+  }
+  qrAsistentes.push({ ldap: ldap, noEncontrado: false });
+  renderListaQR();
+  mostrarEstadoQR("Agregado: " + ldap, "success");
+  if(navigator.vibrate) navigator.vibrate(60);
+}
+
+function renderListaQR(){
+  var lista = document.getElementById("qr-list");
+  if(!lista) return;
+  lista.textContent = "";
+  document.getElementById("qr-count").textContent = String(qrAsistentes.length);
+  if(!qrAsistentes.length){
+    var vacia = document.createElement("p");
+    vacia.className = "qr-note";
+    vacia.textContent = "Todavía no hay códigos escaneados.";
+    lista.appendChild(vacia);
+  } else {
+    qrAsistentes.forEach(function(item, indice){
+      var fila = document.createElement("div");
+      fila.className = "qr-item" + (item.noEncontrado ? " not-found" : "");
+      var texto = document.createElement("div");
+      texto.textContent = item.ldap;
+      if(item.noEncontrado){
+        var aviso = document.createElement("small");
+        aviso.textContent = "No encontrado en Personal RRHH; corrige o elimina este LDAP.";
+        texto.appendChild(aviso);
+      }
+      var quitar = document.createElement("button");
+      quitar.type = "button"; quitar.className = "qr-remove"; quitar.textContent = "×";
+      quitar.setAttribute("aria-label", "Quitar " + item.ldap);
+      quitar.addEventListener("click", function(){ quitarQR(indice); });
+      fila.appendChild(texto); fila.appendChild(quitar); lista.appendChild(fila);
+    });
+  }
+  document.getElementById("qr-save-btn").disabled = qrGuardando || qrAsistentes.length === 0;
+}
+
+function quitarQR(indice){
+  qrAsistentes.splice(indice, 1);
+  renderListaQR();
+}
+
+function limpiarListaQR(){
+  qrAsistentes = [];
+  renderListaQR();
+  mostrarEstadoQR("Lista vaciada.", "");
+  document.getElementById("qr-scan-input").focus();
+}
+
+function mostrarEstadoQR(mensaje, tipo){
+  var estado = document.getElementById("qr-status");
+  estado.textContent = mensaje;
+  estado.className = "qr-status" + (tipo ? " " + tipo : "");
+}
+
+async function iniciarCamaraQR(){
+  if(!window.ZXingBrowser || !ZXingBrowser.BrowserQRCodeReader){
+    mostrarEstadoQR("No se pudo cargar el lector de cámara. Usa el lector USB o revisa la conexión.", "error");
+    return;
+  }
+  try{
+    qrReader = qrReader || new ZXingBrowser.BrowserQRCodeReader();
+    document.getElementById("qr-camera-wrap").classList.remove("hidden");
+    qrCameraControls = await qrReader.decodeFromConstraints(
+      { video: { facingMode: { ideal: "environment" } } },
+      document.getElementById("qr-video"),
+      function(resultado){
+        if(!resultado) return;
+        var textoQR = resultado.getText(), ahora = Date.now();
+        if(textoQR === qrUltimoCamara && ahora - qrUltimoCamaraMs < 1800) return;
+        qrUltimoCamara = textoQR; qrUltimoCamaraMs = ahora;
+        agregarValorQR(textoQR);
+      }
+    );
+    document.getElementById("qr-start-camera").classList.add("hidden");
+    document.getElementById("qr-stop-camera").classList.remove("hidden");
+    mostrarEstadoQR("Cámara activa. Escanea los códigos QR.", "success");
+  } catch(err){
+    detenerCamaraQR();
+    mostrarEstadoQR("No se pudo abrir la cámara. Revisa el permiso del navegador o usa el lector USB.", "error");
+  }
+}
+
+function detenerCamaraQR(){
+  try{ if(qrCameraControls) qrCameraControls.stop(); }catch(err){}
+  qrCameraControls = null;
+  try{ if(qrReader) qrReader.reset(); }catch(err){}
+  var video = document.getElementById("qr-video");
+  if(video) video.srcObject = null;
+  var envoltura = document.getElementById("qr-camera-wrap");
+  if(envoltura) envoltura.classList.add("hidden");
+  var iniciar = document.getElementById("qr-start-camera");
+  var detener = document.getElementById("qr-stop-camera");
+  if(iniciar) iniciar.classList.remove("hidden");
+  if(detener) detener.classList.add("hidden");
+}
+
+function guardarLoteQR(){
+  if(qrGuardando) return;
+  var curso = document.getElementById("qr-curso").value.trim();
+  var instructor = document.getElementById("qr-instructor").value;
+  if(!cursos.some(function(c){ return c.nombre === curso; })){
+    mostrarEstadoQR("Selecciona un curso válido del catálogo.", "error");
+    document.getElementById("qr-curso").focus();
+    return;
+  }
+  if(!analistas.some(function(a){ return a.nombre === instructor; })){
+    mostrarEstadoQR("Selecciona un instructor.", "error");
+    document.getElementById("qr-instructor").focus();
+    return;
+  }
+  if(!qrAsistentes.length){
+    mostrarEstadoQR("Escanea al menos un LDAP antes de guardar.", "error");
+    return;
+  }
+  detenerCamaraQR();
+  qrGuardando = true;
+  renderListaQR();
+  mostrarEstadoQR("Buscando LDAP en Personal RRHH y guardando el lote…", "");
+  var payload = {
+    action: "guardarAsistenciasQR",
+    curso: curso,
+    instructor: instructor,
+    nuevo: "NO",
+    meli: "SI",
+    usuarios: qrAsistentes.map(function(item){ return item.ldap; })
+  };
+
+  function exito(res){
+    qrGuardando = false;
+    if(!res || res.ok !== true){
+      mostrarEstadoQR((res && res.error) || "No se pudo guardar el lote.", "error");
+      renderListaQR();
+      return;
+    }
+    var guardados = Number(res.guardados || 0);
+    var noEncontrados = Array.isArray(res.noEncontrados) ? res.noEncontrados : [];
+    qrAsistentes = noEncontrados.map(function(ldap){ return { ldap: ldap, noEncontrado: true }; });
+    renderListaQR();
+    if(noEncontrados.length){
+      mostrarEstadoQR("Guardadas " + guardados + " asistencias. " + noEncontrados.length + " LDAP no se encontraron; corrígelos o elimínalos para continuar.", guardados ? "warning" : "error");
+    } else {
+      mostrarEstadoQR("Listo: " + guardados + " asistencias guardadas. El texto de cada QR quedó en la columna Firma.", "success");
+    }
+  }
+  function fallo(err){
+    qrGuardando = false;
+    renderListaQR();
+    mostrarEstadoQR("Error al guardar: " + (err && err.message ? err.message : String(err)), "error");
+  }
+
+  if(window.google && google.script && google.script.run){
+    google.script.run.withSuccessHandler(exito).withFailureHandler(fallo).guardarAsistenciasQR(payload);
+    return;
+  }
+  var formData = new FormData();
+  formData.append("data", JSON.stringify(payload));
+  fetch(SCRIPT_URL, { method: "POST", body: formData })
+    .then(function(r){ return r.json(); })
+    .then(exito)
+    .catch(fallo);
 }
 
 // ── Utilidades ────────────────────────────────────────────
