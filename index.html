@@ -105,6 +105,35 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
 .qr-status.success{color:#3B6D11}.qr-status.warning{color:#9A6700}.qr-status.error{color:#B42318}
 .qr-save-btn{width:100%;margin-top:12px;padding:14px;border:0;border-radius:10px;background:#185FA5;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer}
 .qr-save-btn:disabled{background:#AAA;cursor:not-allowed}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mode-card{border:1.5px solid #E5E5E5;border-radius:12px;background:#fff;padding:22px 18px;text-align:left;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);font:inherit;color:#1A1A1A;min-height:150px}
+.mode-card:hover{border-color:#185FA5;box-shadow:0 3px 12px rgba(24,95,165,.12)}
+.mode-card strong{display:block;font-size:17px;margin:12px 0 6px}
+.mode-card span{display:block;color:#666;font-size:13px;line-height:1.45}
+.mode-icon{width:42px;height:42px;border-radius:12px;background:#EAF3DE;color:#3B6D11;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.mode-icon.express{background:#EAF2FA;color:#185FA5}
+.subtle-link{border:0;background:none;color:#185FA5;font:600 13px inherit;text-decoration:underline;cursor:pointer;padding:8px 0}
+.form-actions{display:grid;gap:9px;margin-top:14px}
+.secondary-action{width:100%;padding:12px;border:1.5px solid #D5DCE5;border-radius:9px;background:#fff;color:#334155;font:600 14px inherit;cursor:pointer}
+.primary-action{width:100%;padding:14px;border:0;border-radius:10px;background:#185FA5;color:#fff;font:600 15px inherit;cursor:pointer}
+.primary-action:disabled{background:#AAA;cursor:not-allowed}
+.session-info{font-size:14px;line-height:1.6;color:#475569}
+.session-info strong{color:#1A1A1A}
+.session-qr{display:flex;justify-content:center;align-items:center;min-height:220px;margin:12px 0;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:10px}
+.session-qr canvas,.session-qr img{max-width:100%;height:auto}
+.session-link{font-size:12px;word-break:break-all;color:#475569;background:#F8FAFC;border-radius:8px;padding:10px;line-height:1.4}
+.roster-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.roster-count{font-size:13px;font-weight:700;color:#185FA5;background:#EAF2FA;border-radius:20px;padding:6px 10px;white-space:nowrap}
+.roster-list{display:grid;gap:7px;margin-top:12px}
+.roster-row{padding:10px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#FAFAFA;display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.roster-row strong{display:block;font-size:14px}
+.roster-row small{display:block;color:#64748B;margin-top:3px}
+.roster-empty,.inline-status{font-size:13px;line-height:1.5;color:#64748B}
+.inline-status.error{color:#B42318}.inline-status.success{color:#3B6D11}
+.agreement{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.45;color:#444}
+.agreement input{margin-top:2px;width:18px;height:18px;flex:0 0 18px}
+.session-result a{display:block;margin-top:10px;padding:12px;background:#EAF2FA;border-radius:8px;color:#185FA5;font-weight:700;text-align:center;text-decoration:none}
+@media(max-width:520px){.mode-grid{grid-template-columns:1fr}.mode-card{min-height:auto}.roster-row{align-items:flex-start}}
 @media(max-width:520px){.qr-launch{align-items:flex-start;flex-direction:column}.qr-action-btn{width:100%}.qr-scan-row{flex-direction:column}.qr-scan-row button{width:100%}}
 </style>
 </head>
@@ -115,7 +144,46 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
   <p>Cargando catálogos...</p>
 </div>
 
-<div id="app-form">
+<div id="home-view">
+  <div class="top-bar">
+    <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div><div class="ttl">Registro de Asistencia</div><div class="sub">Safety, Security &amp; Transformation</div></div>
+  </div>
+  <div class="wrap">
+    <div class="card"><div class="card-title">Selecciona el tipo de registro</div>
+      <div class="mode-grid">
+        <button class="mode-card" type="button" onclick="abrirSetupIndividual()">
+          <span class="mode-icon">1</span><strong>Registro individual</strong>
+          <span>Configura una capacitación y comparte un QR para que cada persona registre sus datos y firme.</span>
+        </button>
+        <button class="mode-card" type="button" onclick="abrirModoQR()">
+          <span class="mode-icon express">2</span><strong>Registro express</strong>
+          <span>Escanea varios LDAP_USER y guarda las asistencias en un solo envío.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="session-setup" class="hidden">
+  <div class="top-bar"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="ttl">Registro individual</div><div class="sub">Preparar sesión con QR</div></div></div>
+  <div class="wrap">
+    <button class="qr-back" type="button" onclick="volverAInicio()">← Inicio</button>
+    <div class="card">
+      <div class="card-title">Datos de la capacitación</div>
+      <div class="field"><label for="session-course">Curso <span class="req">*</span></label><select id="session-course"><option value="">— Selecciona un curso —</option></select></div>
+      <div class="field"><label for="session-instructor">Instructor <span class="req">*</span></label><select id="session-instructor"><option value="">— Selecciona un instructor —</option></select></div>
+      <div class="field"><label for="session-date">Fecha de la capacitación <span class="req">*</span></label><input type="date" id="session-date" /></div>
+      <div class="field"><label>¿Es nuevo ingreso? <span class="req">*</span></label><div class="toggle-row"><button type="button" class="toggle-btn" data-session-field="nuevo" data-val="SI" onclick="seleccionarDatoSesion(this)">Sí</button><button type="button" class="toggle-btn" data-session-field="nuevo" data-val="NO" onclick="seleccionarDatoSesion(this)">No</button></div></div>
+      <div class="field"><label>¿Es personal MeLi? <span class="req">*</span></label><div class="toggle-row"><button type="button" class="toggle-btn" data-session-field="meli" data-val="SI" onclick="seleccionarDatoSesion(this)">Sí</button><button type="button" class="toggle-btn" data-session-field="meli" data-val="NO" onclick="seleccionarDatoSesion(this)">No, es externo</button></div></div>
+      <p class="qr-note">Estas opciones definen qué datos solicitará el QR. Para personal MeLi que no sea nuevo se pedirá LDAP_USER; para nuevo ingreso se pedirá nombre; para externos se pedirá nombre y empresa.</p>
+      <div class="inline-status" id="session-setup-status" aria-live="polite"></div>
+      <div class="form-actions"><button id="create-session-btn" class="primary-action" type="button" onclick="crearSesionDesdePagina()">Crear sesión y generar QR</button><button class="secondary-action" type="button" onclick="abrirRegistroManual()">Usar captura manual</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="app-form" class="hidden">
   <div class="top-bar">
     <div class="ico">
       <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -128,6 +196,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
   </div>
 
   <div class="wrap">
+    <button class="qr-back" type="button" onclick="volverAInicio()">← Inicio</button>
     <div class="card qr-launch">
       <div><strong>¿Vas a registrar a varias personas?</strong><p>Escanea los LDAP y guarda las asistencias juntas.</p></div>
       <button class="qr-action-btn" type="button" onclick="abrirModoQR()">Captura rápida por QR</button>
@@ -295,7 +364,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
     <div class="folio-pill">QR · LDAP_USER</div>
   </div>
   <div class="wrap">
-    <button class="qr-back" type="button" onclick="volverARegistroIndividual()">← Volver al registro individual</button>
+    <button class="qr-back" type="button" onclick="volverAInicio()">← Inicio</button>
     <div class="card">
       <div class="card-title">Datos de la sesión</div>
       <div class="qr-badge">MeLi: Sí</div><div class="qr-badge">Nuevo ingreso: No</div>
@@ -334,7 +403,37 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
   </div>
 </div>
 
+<div id="participant-view" class="hidden">
+  <div class="top-bar"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="ttl">Registro de asistencia</div><div class="sub">Firma y confirma tu asistencia</div></div></div>
+  <div class="wrap">
+    <div class="card"><div class="card-title">Capacitación</div><div class="session-info" id="participant-session-info">Cargando sesión…</div></div>
+    <div class="card" id="participant-fields-card">
+      <div class="card-title">Datos del participante</div>
+      <div class="field hidden" id="participant-name-field"><label for="participant-name">Nombre completo <span class="req">*</span></label><input id="participant-name" type="text" placeholder="Nombre(s) y apellidos" autocomplete="name" /></div>
+      <div class="field hidden" id="participant-company-field"><label for="participant-company">Empresa <span class="req">*</span></label><input id="participant-company" type="text" placeholder="Nombre de la empresa" /></div>
+      <div class="field hidden" id="participant-ldap-field"><label for="participant-ldap">LDAP_USER <span class="req">*</span></label><input id="participant-ldap" type="text" placeholder="Escanea o escribe tu LDAP_USER" autocomplete="off" autocapitalize="off" spellcheck="false" /></div>
+      <div class="field"><label>Firma <span class="req">*</span><span class="hint">Firma con el dedo en el celular o con el mouse</span></label><div class="sig-wrap"><canvas id="participant-signature" class="sig-canvas" width="520" height="150"></canvas><div class="sig-bar"><span class="sig-hint" id="participant-signature-hint">Firma en el área de arriba</span><button class="sig-clear" type="button" onclick="borrarFirmaParticipante()">Borrar</button></div></div></div>
+      <label class="agreement"><input type="checkbox" id="participant-consent" /><span>Entiendo que al asistir a la capacitación me comprometo a poner atención y participar activamente.</span></label>
+      <div class="inline-status" id="participant-status" aria-live="polite"></div>
+      <button class="primary-action" id="participant-submit" type="button" onclick="guardarAsistenciaIndividual()">Registrar asistencia</button>
+    </div>
+    <div class="card hidden" id="participant-success"><div class="card-title">Registro completado</div><p class="session-info" id="participant-success-text">Tu asistencia quedó registrada.</p></div>
+  </div>
+</div>
+
+<div id="admin-view" class="hidden">
+  <div class="top-bar"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="ttl">Control de asistencia</div><div class="sub">Sesión individual por QR</div></div></div>
+  <div class="wrap">
+    <div class="card"><div class="card-title">Capacitación</div><div class="session-info" id="admin-session-info">Cargando sesión…</div></div>
+    <div class="card"><div class="card-title">QR para los asistentes</div><p class="qr-note">Muestra este código para que cada persona abra el formulario desde su celular.</p><div id="session-qr" class="session-qr"></div><div class="session-link" id="session-link"></div><button class="secondary-action" type="button" style="margin-top:9px" onclick="copiarEnlaceParticipante()">Copiar enlace</button></div>
+    <div class="card"><div class="roster-head"><div class="card-title" style="margin:0">Asistentes registrados</div><span class="roster-count" id="roster-count">0</span></div><div class="inline-status" id="admin-status" aria-live="polite"></div><div class="roster-list" id="roster-list"><p class="roster-empty">Aún no hay registros.</p></div><button class="secondary-action" type="button" style="margin-top:10px" onclick="actualizarListaInstructor()">Actualizar lista</button><button class="primary-action" id="close-session-btn" type="button" style="margin-top:9px" onclick="cerrarSesionDesdePagina()">Cerrar y generar lista PDF</button><div class="session-result hidden" id="session-result"></div></div>
+  </div>
+</div>
+
+<div id="participant-closed" class="hidden"><div class="top-bar"><div class="ttl">Registro de asistencia</div></div><div class="success-wrap"><div class="success-card"><h2>La captura está cerrada</h2><p class="det">El instructor ya cerró el registro de esta capacitación.</p></div></div></div>
+
 <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ── Estado global ─────────────────────────────────────────
 // ── IMPORTANTE: pega aquí la URL de tu Web App de Apps Script ────────────────
@@ -349,6 +448,9 @@ var sigDrawing = false, sigHasMark = false;
 var folio = "";
 var qrAsistentes = [], qrReader = null, qrCameraControls = null, qrGuardando = false;
 var qrUltimoCamara = "", qrUltimoCamaraMs = 0;
+var datosSesionForm = { nuevo:"", meli:"" };
+var sesionActual = null, tokenInstructorActual = "", tokenPublicoActual = "";
+var asistenteDibuja = false, asistenteFirmo = false, adminRefreshTimer = null;
 
 // ── Folio ─────────────────────────────────────────────────
 function genFolio(){
@@ -377,11 +479,15 @@ fetch(SCRIPT_URL + "?action=getCatalogos", { method: "GET", redirect: "follow" }
       sel.appendChild(o);
     });
     cargarCatalogosQR();
+    cargarCatalogosSesion();
     document.getElementById("init-overlay").style.display = "none";
+    iniciarPorRuta();
   })
   .catch(function(err){
     document.getElementById("init-overlay").style.display = "none";
-    alert("Error al cargar catálogos: " + err.message);
+    iniciarPorRuta();
+    var estado = document.getElementById("session-setup-status");
+    if(estado) estado.textContent = "No se pudieron cargar los catálogos. Revisa la conexión con Apps Script e intenta recargar.";
   });
 
 // ── Toggles Sí/No ─────────────────────────────────────────
@@ -672,8 +778,7 @@ function abrirModoQR(){
     alert("Los catálogos todavía se están cargando. Intenta de nuevo en unos segundos.");
     return;
   }
-  document.getElementById("app-form").classList.add("hidden");
-  document.getElementById("app-success").classList.add("hidden");
+  ocultarVistas();
   document.getElementById("qr-form").classList.remove("hidden");
   renderListaQR();
   setTimeout(function(){ document.getElementById("qr-scan-input").focus(); }, 50);
@@ -681,8 +786,7 @@ function abrirModoQR(){
 
 function volverARegistroIndividual(){
   detenerCamaraQR();
-  document.getElementById("qr-form").classList.add("hidden");
-  document.getElementById("app-form").classList.remove("hidden");
+  volverAInicio();
 }
 
 function agregarQRDesdeCampo(){
@@ -862,6 +966,285 @@ function guardarLoteQR(){
     .then(function(r){ return r.json(); })
     .then(exito)
     .catch(fallo);
+}
+
+// ── Inicio y configuración de una sesión individual ───────
+function ocultarVistas(){
+  ["home-view","session-setup","app-form","app-success","qr-form","participant-view","admin-view","participant-closed"]
+    .forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.add("hidden"); });
+}
+
+function volverAInicio(){
+  detenerCamaraQR();
+  if(adminRefreshTimer){ clearInterval(adminRefreshTimer); adminRefreshTimer=null; }
+  ocultarVistas();
+  document.getElementById("home-view").classList.remove("hidden");
+  if(window.location.search) history.replaceState({}, "", window.location.origin + window.location.pathname);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function cargarCatalogosSesion(){
+  var cursoSel=document.getElementById("session-course");
+  var instructorSel=document.getElementById("session-instructor");
+  if(!cursoSel || !instructorSel) return;
+  cursoSel.innerHTML='<option value="">— Selecciona un curso —</option>';
+  instructorSel.innerHTML='<option value="">— Selecciona un instructor —</option>';
+  cursos.forEach(function(c){
+    var option=document.createElement("option");
+    option.value=c.nombre; option.textContent=c.nombre; option.dataset.id=c.id;
+    cursoSel.appendChild(option);
+  });
+  analistas.forEach(function(a){
+    var option=document.createElement("option");
+    option.value=a.nombre; option.textContent=a.nombre; option.dataset.id=a.id;
+    instructorSel.appendChild(option);
+  });
+}
+
+function fechaHoyLocal(){
+  var d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function abrirSetupIndividual(){
+  if(!cursos.length || !analistas.length){
+    alert("Los catálogos todavía no están disponibles. Revisa la conexión e intenta de nuevo.");
+    return;
+  }
+  ocultarVistas();
+  document.getElementById("session-setup").classList.remove("hidden");
+  document.getElementById("session-date").value=fechaHoyLocal();
+  document.getElementById("session-setup-status").textContent="";
+  datosSesionForm={nuevo:"",meli:""};
+  document.querySelectorAll("[data-session-field]").forEach(function(b){b.className="toggle-btn";});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function seleccionarDatoSesion(btn){
+  var field=btn.dataset.sessionField, value=btn.dataset.val;
+  datosSesionForm[field]=value;
+  document.querySelectorAll('[data-session-field="'+field+'"]').forEach(function(b){b.className="toggle-btn";});
+  btn.classList.add(value==="SI"?"active-si":"active-no");
+}
+
+function abrirRegistroManual(){
+  ocultarVistas();
+  document.getElementById("app-form").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function llamadaGET(action, params){
+  var query=new URLSearchParams(Object.assign({action:action},params||{}));
+  return fetch(SCRIPT_URL+"?"+query.toString(),{method:"GET",redirect:"follow"})
+    .then(function(r){return r.text();})
+    .then(function(txt){var data;try{data=JSON.parse(txt);}catch(e){throw new Error("El servidor devolvió una respuesta inválida.");}if(data&&data.ok===false)throw new Error(data.error||"No se pudo completar la solicitud.");return data;});
+}
+
+function llamadaPOST(payload){
+  var form=new FormData();
+  form.append("data",JSON.stringify(payload));
+  return fetch(SCRIPT_URL,{method:"POST",body:form})
+    .then(function(r){return r.text();})
+    .then(function(txt){var data;try{data=JSON.parse(txt);}catch(e){throw new Error("El servidor devolvió una respuesta inválida.");}if(!data||data.ok!==true)throw new Error((data&&data.error)||"No se pudo completar la solicitud.");return data;});
+}
+
+function crearSesionDesdePagina(){
+  var cursoSel=document.getElementById("session-course");
+  var instructorSel=document.getElementById("session-instructor");
+  var estado=document.getElementById("session-setup-status");
+  var boton=document.getElementById("create-session-btn");
+  var cursoOpt=cursoSel.options[cursoSel.selectedIndex];
+  var instOpt=instructorSel.options[instructorSel.selectedIndex];
+  if(!cursoSel.value || !instructorSel.value || !document.getElementById("session-date").value || !datosSesionForm.nuevo || !datosSesionForm.meli){
+    estado.className="inline-status error";
+    estado.textContent="Completa los datos de la capacitación y selecciona las dos opciones de perfil.";
+    return;
+  }
+  boton.disabled=true; estado.className="inline-status"; estado.textContent="Creando la sesión…";
+  llamadaPOST({
+    action:"crearSesionQR", curso:cursoSel.value, cursoId:cursoOpt.dataset.id||"",
+    instructor:instructorSel.value, instructorId:instOpt.dataset.id||"",
+    fechaCurso:document.getElementById("session-date").value,
+    nuevo:datosSesionForm.nuevo, meli:datosSesionForm.meli
+  }).then(function(data){
+    tokenInstructorActual=data.tokenInstructor; tokenPublicoActual=data.tokenPublico;
+    sesionActual={sesionId:data.sesionId,curso:data.curso,instructor:data.instructor,fechaCurso:data.fechaCurso,nuevo:data.nuevo,meli:data.meli,estado:"ABIERTA"};
+    var base=window.location.origin+window.location.pathname;
+    history.replaceState({},"",base+"?admin="+encodeURIComponent(tokenInstructorActual));
+    mostrarPanelInstructor(data);
+  }).catch(function(err){
+    estado.className="inline-status error"; estado.textContent="No se pudo crear la sesión: "+err.message;
+  }).finally(function(){boton.disabled=false;});
+}
+
+function iniciarPorRuta(){
+  var params=new URLSearchParams(window.location.search);
+  var adminToken=params.get("admin");
+  var participantToken=params.get("session");
+  if(adminToken){ cargarPanelInstructor(adminToken); return; }
+  if(participantToken){ cargarFormularioParticipante(participantToken); return; }
+  ocultarVistas(); document.getElementById("home-view").classList.remove("hidden");
+}
+
+function fechaLegible(value){
+  if(!value) return "";
+  var d=new Date(value+"T12:00:00");
+  return isNaN(d.getTime())?value:d.toLocaleDateString("es-MX",{dateStyle:"long"});
+}
+
+function textoSesion(s){
+  return "<strong>Curso:</strong> "+escHtml(s.curso)+"<br><strong>Instructor:</strong> "+escHtml(s.instructor)+"<br><strong>Fecha:</strong> "+escHtml(fechaLegible(s.fechaCurso));
+}
+
+function cargarPanelInstructor(token){
+  tokenInstructorActual=token; ocultarVistas();
+  document.getElementById("admin-view").classList.remove("hidden");
+  document.getElementById("admin-status").textContent="Cargando sesión y asistentes…";
+  actualizarListaInstructor();
+  if(adminRefreshTimer) clearInterval(adminRefreshTimer);
+  adminRefreshTimer=setInterval(actualizarListaInstructor,15000);
+}
+
+function mostrarPanelInstructor(data){
+  ocultarVistas();
+  tokenInstructorActual=data.tokenInstructor; tokenPublicoActual=data.tokenPublico;
+  document.getElementById("admin-view").classList.remove("hidden");
+  var link=window.location.origin+window.location.pathname+"?session="+encodeURIComponent(tokenPublicoActual);
+  document.getElementById("session-link").textContent=link;
+  document.getElementById("admin-session-info").innerHTML=textoSesion(sesionActual)+"<br><strong>Perfil:</strong> "+escHtml(sesionActual.nuevo==="SI"?"Nuevo ingreso":"Personal con experiencia")+" · "+escHtml(sesionActual.meli==="SI"?"MeLi":"Externo");
+  dibujarQR(link);
+  actualizarListaInstructor();
+  if(adminRefreshTimer) clearInterval(adminRefreshTimer);
+  adminRefreshTimer=setInterval(actualizarListaInstructor,15000);
+}
+
+function dibujarQR(link){
+  var el=document.getElementById("session-qr"); el.innerHTML="";
+  if(window.QRCode){ new QRCode(el,{text:link,width:200,height:200,colorDark:"#111827",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M}); }
+  else { var p=document.createElement("p"); p.className="qr-note"; p.textContent="No se pudo cargar el generador del QR. Comparte el enlace que aparece abajo."; el.appendChild(p); }
+}
+
+function actualizarListaInstructor(){
+  if(!tokenInstructorActual) return;
+  llamadaGET("getSesionAdmin",{token:tokenInstructorActual}).then(function(data){
+    sesionActual=data.sesion;
+    tokenPublicoActual=data.tokenPublico||tokenPublicoActual;
+    var info=document.getElementById("admin-session-info");
+    if(!document.getElementById("session-link").textContent){
+      tokenPublicoActual="";
+    }
+    info.innerHTML=textoSesion(sesionActual)+"<br><strong>Perfil:</strong> "+escHtml(sesionActual.nuevo==="SI"?"Nuevo ingreso":"Personal con experiencia")+" · "+escHtml(sesionActual.meli==="SI"?"MeLi":"Externo");
+    var link=document.getElementById("session-link");
+    if(tokenPublicoActual){var url=window.location.origin+window.location.pathname+"?session="+encodeURIComponent(tokenPublicoActual);link.textContent=url;if(!document.getElementById("session-qr").childNodes.length) dibujarQR(url);}
+    var roster=document.getElementById("roster-list"); roster.textContent="";
+    var asistentes=Array.isArray(data.asistentes)?data.asistentes:[];
+    document.getElementById("roster-count").textContent=String(asistentes.length);
+    if(!asistentes.length){var empty=document.createElement("p");empty.className="roster-empty";empty.textContent="Aún no hay registros.";roster.appendChild(empty);}
+    asistentes.forEach(function(persona){
+      var row=document.createElement("div"); row.className="roster-row";
+      var main=document.createElement("div"); var name=document.createElement("strong"); name.textContent=persona.nombre||"Sin nombre"; main.appendChild(name);
+      if(persona.empresa){var company=document.createElement("small");company.textContent=persona.empresa;main.appendChild(company);}
+      var time=document.createElement("small");time.textContent=persona.hora||"";row.appendChild(main);row.appendChild(time);roster.appendChild(row);
+    });
+    var status=document.getElementById("admin-status");
+    status.className="inline-status"; status.textContent=sesionActual.estado==="CERRADA"?"Sesión cerrada.":"Lista actualizada.";
+    var closeButton=document.getElementById("close-session-btn");
+    closeButton.disabled=sesionActual.estado!=="ABIERTA";
+    if(sesionActual.estado==="CERRADA" && data.pdfDescarga) mostrarResultadoPDF(data.pdfDescarga,data.pdfUrl,"La lista ya fue generada.");
+  }).catch(function(err){
+    var status=document.getElementById("admin-status");status.className="inline-status error";status.textContent="No se pudo actualizar la lista: "+err.message;
+  });
+}
+
+function copiarEnlaceParticipante(){
+  var link=document.getElementById("session-link").textContent;
+  if(!link) return;
+  if(navigator.clipboard && navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){document.getElementById("admin-status").textContent="Enlace copiado.";}).catch(function(){window.prompt("Copia el enlace del QR:",link);});}
+  else window.prompt("Copia el enlace del QR:",link);
+}
+
+function cargarFormularioParticipante(token){
+  tokenPublicoActual=token; ocultarVistas();
+  document.getElementById("participant-view").classList.remove("hidden");
+  document.getElementById("participant-session-info").textContent="Cargando datos de la capacitación…";
+  llamadaGET("getSesionQR",{token:token}).then(function(data){
+    sesionActual=data.sesion;
+    document.getElementById("participant-session-info").innerHTML=textoSesion(sesionActual);
+    var showName=!(sesionActual.meli==="SI" && sesionActual.nuevo==="NO");
+    document.getElementById("participant-name-field").classList.toggle("hidden",!showName);
+    document.getElementById("participant-company-field").classList.toggle("hidden",sesionActual.meli!=="NO");
+    document.getElementById("participant-ldap-field").classList.toggle("hidden",!(sesionActual.meli==="SI" && sesionActual.nuevo==="NO"));
+    iniciarFirmaParticipante();
+  }).catch(function(err){
+    ocultarVistas();
+    if(/cerrad/i.test(err.message)){document.getElementById("participant-closed").classList.remove("hidden");}
+    else {document.getElementById("participant-view").classList.remove("hidden");document.getElementById("participant-session-info").textContent=err.message;document.getElementById("participant-fields-card").classList.add("hidden");}
+  });
+}
+
+function iniciarFirmaParticipante(){
+  var canvas=document.getElementById("participant-signature");
+  if(!canvas || canvas.dataset.ready==="1") return;
+  canvas.dataset.ready="1";
+  var ctx=canvas.getContext("2d"); ctx.strokeStyle="#1A1A1A";ctx.lineWidth=2.5;ctx.lineCap="round";ctx.lineJoin="round";
+  function point(e){var r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};}
+  canvas.addEventListener("pointerdown",function(e){asistenteDibuja=true;canvas.setPointerCapture(e.pointerId);var p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();});
+  canvas.addEventListener("pointermove",function(e){if(!asistenteDibuja)return;var p=point(e);ctx.lineTo(p.x,p.y);ctx.stroke();asistenteFirmo=true;document.getElementById("participant-signature-hint").textContent="✓ Firma capturada";document.getElementById("participant-signature-hint").className="sig-hint ok";e.preventDefault();});
+  ["pointerup","pointercancel","lostpointercapture"].forEach(function(type){canvas.addEventListener(type,function(){asistenteDibuja=false;});});
+}
+
+function borrarFirmaParticipante(){
+  var canvas=document.getElementById("participant-signature");
+  if(!canvas) return;
+  canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
+  asistenteFirmo=false;
+  document.getElementById("participant-signature-hint").textContent="Firma en el área de arriba";
+  document.getElementById("participant-signature-hint").className="sig-hint";
+}
+
+function guardarAsistenciaIndividual(){
+  if(!sesionActual || !tokenPublicoActual) return;
+  var isLDAP=sesionActual.meli==="SI" && sesionActual.nuevo==="NO";
+  var name=document.getElementById("participant-name").value.trim();
+  var ldap=document.getElementById("participant-ldap").value.trim();
+  var company=document.getElementById("participant-company").value.trim();
+  var consent=document.getElementById("participant-consent").checked;
+  var status=document.getElementById("participant-status");
+  if((isLDAP && !ldap)||(!isLDAP && !name)||(sesionActual.meli==="NO"&&!company)||!asistenteFirmo||!consent){
+    status.className="inline-status error";
+    status.textContent="Revisa los campos obligatorios, firma y confirma el compromiso para continuar.";
+    return;
+  }
+  var button=document.getElementById("participant-submit");button.disabled=true;status.className="inline-status";status.textContent="Guardando tu asistencia…";
+  llamadaPOST({action:"registrarAsistenciaSesion",token:tokenPublicoActual,ldap:ldap,nombre:name,empresa:company,consentimiento:consent,firma:document.getElementById("participant-signature").toDataURL("image/png")})
+    .then(function(data){
+      document.getElementById("participant-fields-card").classList.add("hidden");
+      document.getElementById("participant-success").classList.remove("hidden");
+      document.getElementById("participant-success-text").textContent="Gracias, "+data.nombre+". Tu asistencia a “"+data.curso+"” quedó registrada.";
+      window.scrollTo({top:0,behavior:"smooth"});
+    }).catch(function(err){status.className="inline-status error";status.textContent="No se pudo guardar: "+err.message;button.disabled=false;});
+}
+
+function cerrarSesionDesdePagina(){
+  if(!tokenInstructorActual || !sesionActual) return;
+  if(!confirm("¿Cerrar la captura y generar la lista de asistencia PDF? Después de cerrar no se podrán agregar más personas.")) return;
+  var button=document.getElementById("close-session-btn");
+  var status=document.getElementById("admin-status");button.disabled=true;status.className="inline-status";status.textContent="Cerrando la sesión y preparando el PDF…";
+  llamadaPOST({action:"cerrarSesionQR",token:tokenInstructorActual}).then(function(data){
+    sesionActual.estado="CERRADA";
+    var mensaje="PDF generado: "+data.cantidad+" asistentes en "+data.paginas+" página(s).";
+    if(data.errorControl) mensaje+=" El PDF quedó en Drive, pero falló el registro de control: "+data.errorControl;
+    mostrarResultadoPDF(data.pdfDescarga,data.pdfUrl,mensaje);
+    actualizarListaInstructor();
+  }).catch(function(err){status.className="inline-status error";status.textContent="No se pudo generar la lista: "+err.message;button.disabled=false;});
+}
+
+function mostrarResultadoPDF(downloadUrl,driveUrl,mensaje){
+  var result=document.getElementById("session-result");
+  result.classList.remove("hidden");result.textContent="";
+  var note=document.createElement("p");note.className="inline-status success";note.textContent=mensaje;result.appendChild(note);
+  var download=document.createElement("a");download.href=downloadUrl;download.target="_blank";download.rel="noopener";download.textContent="Descargar PDF";result.appendChild(download);
+  var drive=document.createElement("a");drive.href=driveUrl;drive.target="_blank";drive.rel="noopener";drive.textContent="Abrir PDF guardado en Drive";result.appendChild(drive);
 }
 
 // ── Utilidades ────────────────────────────────────────────
