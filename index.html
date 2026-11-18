@@ -150,6 +150,11 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
     <div><div class="ttl">Registro de Asistencia</div><div class="sub">Safety, Security &amp; Transformation</div></div>
   </div>
   <div class="wrap">
+    <div id="resume-session-card" class="card hidden">
+      <div class="card-title">Sesión individual abierta</div>
+      <p class="qr-note">Puedes volver a la lista y al QR de la sesión que dejaste abierta.</p>
+      <button class="secondary-action" type="button" style="margin-top:10px" onclick="retomarSesionInstructor()">Retomar sesión individual</button>
+    </div>
     <div class="card"><div class="card-title">Selecciona el tipo de registro</div>
       <div class="mode-grid">
         <button class="mode-card" type="button" onclick="abrirSetupIndividual()">
@@ -424,6 +429,7 @@ input[type=text]:focus,select:focus{outline:none;border-color:#378ADD;box-shadow
 <div id="admin-view" class="hidden">
   <div class="top-bar"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="ttl">Control de asistencia</div><div class="sub">Sesión individual por QR</div></div></div>
   <div class="wrap">
+    <button class="qr-back" type="button" onclick="volverAlMenuDesdeInstructor()">← Regresar al menú principal</button>
     <div class="card"><div class="card-title">Capacitación</div><div class="session-info" id="admin-session-info">Cargando sesión…</div></div>
     <div class="card"><div class="card-title">QR para los asistentes</div><p class="qr-note">Muestra este código para que cada persona abra el formulario desde su celular.</p><div id="session-qr" class="session-qr"></div><div class="session-link" id="session-link"></div><button class="secondary-action" type="button" style="margin-top:9px" onclick="copiarEnlaceParticipante()">Copiar enlace</button></div>
     <div class="card"><div class="roster-head"><div class="card-title" style="margin:0">Asistentes registrados</div><span class="roster-count" id="roster-count">0</span></div><div class="inline-status" id="admin-status" aria-live="polite"></div><div class="roster-list" id="roster-list"><p class="roster-empty">Aún no hay registros.</p></div><button class="secondary-action" type="button" style="margin-top:10px" onclick="actualizarListaInstructor()">Actualizar lista</button><button class="primary-action" id="close-session-btn" type="button" style="margin-top:9px" onclick="cerrarSesionDesdePagina()">Cerrar y generar lista PDF</button><div class="session-result hidden" id="session-result"></div></div>
@@ -979,8 +985,26 @@ function volverAInicio(){
   if(adminRefreshTimer){ clearInterval(adminRefreshTimer); adminRefreshTimer=null; }
   ocultarVistas();
   document.getElementById("home-view").classList.remove("hidden");
+  mostrarReanudarSesion(!!sessionStorage.getItem("registroSST_adminToken"));
   if(window.location.search) history.replaceState({}, "", window.location.origin + window.location.pathname);
   window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function volverAlMenuDesdeInstructor(){
+  if(tokenInstructorActual) sessionStorage.setItem("registroSST_adminToken",tokenInstructorActual);
+  volverAInicio();
+}
+
+function mostrarReanudarSesion(mostrar){
+  var card=document.getElementById("resume-session-card");
+  if(card) card.classList.toggle("hidden",!mostrar);
+}
+
+function retomarSesionInstructor(){
+  var token=sessionStorage.getItem("registroSST_adminToken");
+  if(!token) return;
+  history.replaceState({},"",window.location.origin+window.location.pathname+"?admin="+encodeURIComponent(token));
+  cargarPanelInstructor(token);
 }
 
 function cargarCatalogosSesion(){
@@ -1081,9 +1105,10 @@ function iniciarPorRuta(){
   var params=new URLSearchParams(window.location.search);
   var adminToken=params.get("admin");
   var participantToken=params.get("session");
-  if(adminToken){ cargarPanelInstructor(adminToken); return; }
+  if(adminToken){ sessionStorage.setItem("registroSST_adminToken",adminToken); cargarPanelInstructor(adminToken); return; }
   if(participantToken){ cargarFormularioParticipante(participantToken); return; }
   ocultarVistas(); document.getElementById("home-view").classList.remove("hidden");
+  mostrarReanudarSesion(!!sessionStorage.getItem("registroSST_adminToken"));
 }
 
 function fechaLegible(value){
@@ -1108,6 +1133,7 @@ function cargarPanelInstructor(token){
 function mostrarPanelInstructor(data){
   ocultarVistas();
   tokenInstructorActual=data.tokenInstructor; tokenPublicoActual=data.tokenPublico;
+  sessionStorage.setItem("registroSST_adminToken",tokenInstructorActual);
   document.getElementById("admin-view").classList.remove("hidden");
   var link=window.location.origin+window.location.pathname+"?session="+encodeURIComponent(tokenPublicoActual);
   document.getElementById("session-link").textContent=link;
@@ -1129,6 +1155,12 @@ function actualizarListaInstructor(){
   llamadaGET("getSesionAdmin",{token:tokenInstructorActual}).then(function(data){
     sesionActual=data.sesion;
     tokenPublicoActual=data.tokenPublico||tokenPublicoActual;
+    if(sesionActual.estado==="CERRADA"){
+      if(sessionStorage.getItem("registroSST_adminToken")===tokenInstructorActual) sessionStorage.removeItem("registroSST_adminToken");
+      mostrarReanudarSesion(false);
+    } else {
+      sessionStorage.setItem("registroSST_adminToken",tokenInstructorActual);
+    }
     var info=document.getElementById("admin-session-info");
     if(!document.getElementById("session-link").textContent){
       tokenPublicoActual="";
@@ -1232,6 +1264,7 @@ function cerrarSesionDesdePagina(){
   var status=document.getElementById("admin-status");button.disabled=true;status.className="inline-status";status.textContent="Cerrando la sesión y preparando el PDF…";
   llamadaPOST({action:"cerrarSesionQR",token:tokenInstructorActual}).then(function(data){
     sesionActual.estado="CERRADA";
+    if(sessionStorage.getItem("registroSST_adminToken")===tokenInstructorActual) sessionStorage.removeItem("registroSST_adminToken");
     var mensaje="PDF generado: "+data.cantidad+" asistentes en "+data.paginas+" página(s).";
     if(data.errorControl) mensaje+=" El PDF quedó en Drive, pero falló el registro de control: "+data.errorControl;
     mostrarResultadoPDF(data.pdfDescarga,data.pdfUrl,mensaje);
